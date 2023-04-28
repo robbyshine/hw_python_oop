@@ -91,6 +91,11 @@ class SportsWalking(Training):
         super().__init__(action, duration, weight)
         self.height = height
 
+    def get_spent_calories(self) -> float:
+        return ((0.035 * self.height
+                 + (Training.get_mean_speed(self)**2 / self.height)
+                * 0.029 * self.weight) * self.duration)
+
 
 class Swimming(Training):
     """Тренировка: плавание."""
