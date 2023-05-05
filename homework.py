@@ -1,18 +1,17 @@
+from dataclasses import dataclass
+# from typing import TypedDict
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
+    training_type: str
+    duration: int
+    distance: float
+    speed: float
+    calories: float
 
-    def __init__(self,
-                 training_type,
-                 duration,
-                 distance,
-                 speed,
-                 calories) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
-
+# не пойму никак как это сделать шаблоном
     def get_message(self) -> str:
         return (f'Тип тренировки: {self.training_type}; '
                 f'Длительность: {self.duration:.3f} ч.; '
@@ -37,13 +36,11 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
-        distance = self.action * self.LEN_STEP / self.M_IN_KM
-        return distance
+        return self.action * self.LEN_STEP / self.M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_speed = Training.get_distance(self) / self.duration
-        return mean_speed
+        return Training.get_distance(self) / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -62,11 +59,6 @@ class Running(Training):
     """Тренировка: бег."""
     CALORIES_MEAN_SPEED_MULTIPLIER: float = 18
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
-
-    def __init__(self, action: int,
-                 duration: float,
-                 weight: float) -> None:
-        super().__init__(action, duration, weight)
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -106,8 +98,8 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP: float = 1.38
-    COEFF_1: float = 1.1
-    COEFF_2: float = 2
+    CALORIES_MEAN_SWIM_MULTIPLIER_1: float = 1.1
+    CALORIES_MEAN_SWIM_MULTIPLIER_2: float = 2
 
     def __init__(self, action: int,
                  duration: float,
@@ -128,14 +120,15 @@ class Swimming(Training):
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         avg_speed = Swimming.get_mean_speed(self)
-        return ((avg_speed + self.COEFF_1)
-                * self.COEFF_2 * self.weight * self.duration)
+        return ((avg_speed + self.CALORIES_MEAN_SWIM_MULTIPLIER_1)
+                * self.CALORIES_MEAN_SWIM_MULTIPLIER_2
+                * self.weight * self.duration)
 
 
 def read_package(workout_type: str,
                  data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_types = {'SWM': Swimming,
+    workout_types = {'SWM': Swimming,     # пробовал TypedDict но не разобрался
                      'RUN': Running,
                      'WLK': SportsWalking}
     if workout_type in workout_types:
