@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-# from typing import TypedDict
+from dataclasses import dataclass, asdict
+from typing import Dict, Type
 
 
 @dataclass
@@ -10,14 +10,15 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
+    message: str = ('Тип тренировки: {training_type}; '
+                    'Длительность: {duration:.3f} ч.; '
+                    'Дистанция: {distance:.3f} км; '
+                    'Ср. скорость: {speed:.3f} км/ч; '
+                    'Потрачено ккал: {calories:.3f}.')
 
-# не пойму никак как это сделать шаблоном
     def get_message(self) -> str:
-        return (f'Тип тренировки: {self.training_type}; '
-                f'Длительность: {self.duration:.3f} ч.; '
-                f'Дистанция: {self.distance:.3f} км; '
-                f'Ср. скорость: {self.speed:.3f} км/ч; '
-                f'Потрачено ккал: {self.calories:.3f}.')
+        """Метод возвращает строку сообщения"""
+        return self.message.format(**asdict(self))
 
 
 class Training:
@@ -126,14 +127,16 @@ class Swimming(Training):
 
 
 def read_package(workout_type: str,
-                 data: list) -> Training:
+                 data: list[Type[Training]]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    workout_types = {'SWM': Swimming,     # пробовал TypedDict но не разобрался
-                     'RUN': Running,
-                     'WLK': SportsWalking}
-    if workout_type in workout_types:
-        return workout_types[workout_type](*data)
-    return ('Пакет данных неверный')
+    workout_types: Dict[str, Type[Training]] = {
+        'SWM': Swimming,
+        'RUN': Running,
+        'WLK': SportsWalking
+        }
+    if workout_type not in workout_types:
+        raise ValueError(f'Такой тренировки - {workout_type}, не найдено')
+    return workout_types[workout_type](*data)
 
 
 def main(training: Training) -> None:
