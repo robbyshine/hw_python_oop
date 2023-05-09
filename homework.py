@@ -133,7 +133,7 @@ def read_package(workout_type: str,
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
-        }
+    }
     if workout_type not in workout_types:
         raise ValueError(f'Такой тренировки - {workout_type}, не найдено')
     return workout_types[workout_type](*data)
